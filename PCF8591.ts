@@ -23,5 +23,19 @@ namespace Analog {
         buf[1] = val;
         pins.i2cWriteBuffer(PCF8591_ADDRESS, buf);
     }
+
+    //% blockID==Analog
+    //% block="ADC %channel"
+    //% weight=90
+    export function ADC(channel: AO): number {
+        let buf = pins.createBuffer(1);
+        buf[0] = channel;
+        pins.i2cWriteBuffer(PCF8591_ADDRESS, buf);
+        let res = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.Int8LE, false);
+        res = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.Int8LE, false);
+        return res;
+    }
+
+
 }
 
