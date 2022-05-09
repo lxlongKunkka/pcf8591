@@ -3,10 +3,10 @@
 let PCF8591_ADDRESS = 72;
 
 enum AO {
-    IN1 = 0,
+    IN0 = 0,
+    IN1,
     IN2,
     IN3,
-    IN4,
     OUT
 }
 
@@ -29,13 +29,31 @@ namespace Analog {
     //% weight=90
     export function ADC(channel: AO): number {
         let buf = pins.createBuffer(1);
-        buf[0] = channel;
+        buf[0] = 0x40 | channel;
         pins.i2cWriteBuffer(PCF8591_ADDRESS, buf);
-        let res = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.Int8LE, false);
-        res = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.Int8LE, false);
+        let res = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.UInt8LE, false);
+        res = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.UInt8LE, false);
         return res;
     }
 
-
+    //% blockID==Analog
+    //% block="Scan"
+    //% weight=90 advanced=true
+    export function ScanAllChannel(): number[] {
+        let buf = pins.createBuffer(1);
+        buf[0] = 0x44;
+        pins.i2cWriteBuffer(PCF8591_ADDRESS, buf);
+        pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.UInt8LE, false);
+        let res = [-1,-1,-1,-1];
+        for(let i=0; i<4; i++)
+        {
+            res[i] = pins.i2cReadNumber(PCF8591_ADDRESS, NumberFormat.UInt8LE, false);
+        }
+        for(let i=0; i<4; i++)
+        {
+            serial.writeValue(i.toString(), res[i])
+        }
+        return res;
+    }
 }
 
